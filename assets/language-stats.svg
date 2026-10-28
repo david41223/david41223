@@ -1,5 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="900" height="120" viewBox="0 0 900 120">
-  <rect width="100%" height="100%" rx="12" fill="#0d1117"/>
-  <text x="20" y="48" fill="#f0f6fc" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-size="24" font-weight="700">Languages across accessible repositories</text>
-  <text x="20" y="80" fill="#8b949e" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-size="14">Statistics will appear after the first run of the "Update language statistics" workflow.</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="290" viewBox="0 0 900 290">
+  <style>
+    .bg { fill: #0d1117; }
+    .title { fill: #f0f6fc; font: 700 24px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    .meta { fill: #8b949e; font: 14px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    .label,.value { fill: #c9d1d9; font: 15px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    .value { text-anchor: end; }
+  </style>
+  <rect class="bg" width="100%" height="100%" rx="12"/>
+  <text x="20" y="38" class="title">Languages across accessible repositories</text>
+  <text x="20" y="63" class="meta">Includes owned, collaborator, and organization-member repositories · updated 2026-10-28</text>
+  <rect x="250" y="76" width="466.8" height="18" rx="4" fill="#3572A5"/><text x="20" y="90" class="label">Python</text><text x="790" y="90" class="value">89.8%</text><rect x="250" y="110" width="45.7" height="18" rx="4" fill="#f1e05a"/><text x="20" y="124" class="label">JavaScript</text><text x="790" y="124" class="value">8.8%</text><rect x="250" y="144" width="3.2" height="18" rx="4" fill="#e34c26"/><text x="20" y="158" class="label">HTML</text><text x="790" y="158" class="value">0.6%</text><rect x="250" y="178" width="3.0" height="18" rx="4" fill="#f34b7d"/><text x="20" y="192" class="label">C++</text><text x="790" y="192" class="value">0.6%</text><rect x="250" y="212" width="2.0" height="18" rx="4" fill="#89e051"/><text x="20" y="226" class="label">Shell</text><text x="790" y="226" class="value">0.3%</text>
 </svg>
