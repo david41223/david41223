@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="120" viewBox="0 0 900 120">
+  <rect width="100%" height="100%" rx="12" fill="#0d1117"/>
+  <text x="20" y="48" fill="#f0f6fc" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-size="24" font-weight="700">Languages across accessible repositories</text>
+  <text x="20" y="80" fill="#8b949e" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-size="14">Statistics will appear after the first run of the "Update language statistics" workflow.</text>
+</svg>

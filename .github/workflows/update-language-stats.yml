@@ -1,0 +1,117 @@
+# GitHub profile language statistics
+
+name: Update language statistics
+
+on:
+  schedule:
+    - cron: "17 4 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-language-stats:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate statistics from accessible repositories
+        env:
+          GH_TOKEN: ${{ secrets.REPO_STATS_TOKEN }}
+        run: |
+          python3 - <<'PY'
+          import json, os, urllib.request
+          from collections import Counter
+          from datetime import datetime, timezone
+
+          token = os.environ.get("GH_TOKEN")
+          if not token:
+              raise SystemExit("Missing REPO_STATS_TOKEN repository secret")
+
+          headers = {
+              "Accept": "application/vnd.github+json",
+              "Authorization": f"Bearer {token}",
+              "X-GitHub-Api-Version": "2022-11-28",
+          }
+
+          def get(url):
+              request = urllib.request.Request(url, headers=headers)
+              with urllib.request.urlopen(request) as response:
+                  return json.load(response)
+
+          repos = []
+          for page in range(1, 20):
+              data = get(
+                  "https://api.github.com/user/repos"
+                  f"?per_page=100&page={page}"
+                  "&affiliation=owner,collaborator,organization_member"
+                  "&sort=updated"
+              )
+              if not data:
+                  break
+              repos.extend(data)
+
+          totals = Counter()
+          for repo in repos:
+              if repo.get("fork") or repo.get("archived"):
+                  continue
+              try:
+                  languages = get(repo["languages_url"])
+              except Exception:
+                  continue
+              totals.update(languages)
+
+          total = sum(totals.values()) or 1
+          colors = {
+              "Python": "#3572A5", "C++": "#f34b7d", "C": "#555555",
+              "JavaScript": "#f1e05a", "TypeScript": "#3178c6", "HTML": "#e34c26",
+              "CSS": "#563d7c", "Java": "#b07219", "C#": "#178600",
+              "Shell": "#89e051", "HCL": "#844FBA", "Kotlin": "#A97BFF",
+              "Vue": "#41b883", "TeX": "#3D6117", "CMake": "#DA3434",
+              "Makefile": "#427819", "SQL": "#e38c00",
+          }
+          rows = [
+              (language, amount / total * 100, colors.get(language, "#8b949e"))
+              for language, amount in totals.most_common(12)
+          ]
+
+          width, height = 900, 120 + 34 * len(rows)
+          bars = []
+          y = 92
+          for language, percent, color in rows:
+              bar_width = max(2, 520 * percent / 100)
+              bars.append(
+                  f'<rect x="250" y="{y-16}" width="{bar_width:.1f}" height="18" rx="4" fill="{color}"/>'
+                  f'<text x="20" y="{y-2}" class="label">{language}</text>'
+                  f'<text x="790" y="{y-2}" class="value">{percent:.1f}%</text>'
+              )
+              y += 34
+
+          updated = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+          svg = f'''<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">
+            <style>
+              .bg {{ fill: #0d1117; }}
+              .title {{ fill: #f0f6fc; font: 700 24px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }}
+              .meta {{ fill: #8b949e; font: 14px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }}
+              .label,.value {{ fill: #c9d1d9; font: 15px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }}
+              .value {{ text-anchor: end; }}
+            </style>
+            <rect class="bg" width="100%" height="100%" rx="12"/>
+            <text x="20" y="38" class="title">Languages across accessible repositories</text>
+            <text x="20" y="63" class="meta">Includes owned, collaborator, and organization-member repositories · updated {updated}</text>
+            {''.join(bars)}
+          </svg>'''
+
+          os.makedirs("assets", exist_ok=True)
+          with open("assets/language-stats.svg", "w", encoding="utf-8") as file:
+              file.write(svg)
+          PY
+
+      - name: Commit updated statistics
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/language-stats.svg
+          git diff --cached --quiet || git commit -m "Update language statistics"
+          git push
